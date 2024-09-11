@@ -1,60 +1,58 @@
-package dynamicProgramming.introToDP.knapsackAndBasicDynamicProgramming;
+package GraphTheory.DFS;
 
 import java.io.*;
 import java.util.*;
 
-public class Knapsack1 {
+// Problem: https://codeforces.com/problemset/problem/580/C
 
-    static long dp[][];
+public class KefaAndPark {
 
     public static void main(String args[]) {
 
         FastIO in = new FastIO();
-        int N = in.nextInt();
-        int W = in.nextInt();
 
-        int w[] = new int[N];
-        int v[] = new int[N];
-        dp = new long[N][W + 1];
+        int n = in.nextInt();
+        int m = in.nextInt();
 
-        for (int i = 0; i < N; i++) {
-            w[i] = in.nextInt();
-            v[i] = in.nextInt();
+        Map<Integer, List<Integer>> adj = new HashMap<>();
+        boolean hasCat[] = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            int x = in.nextInt();
+            if (x == 1) hasCat[i] = true;
+            adj.put(i, new ArrayList<>());
         }
 
-        for (int j = w[0]; j <= W; j++) {
-            dp[0][j] = v[0];
+        for (int i = 1; i < n; i++) {
+            int u = in.nextInt() - 1;
+            int v = in.nextInt() - 1;
+            adj.get(u).add(v);
+            adj.get(v).add(u);
         }
 
-        for (int i = 1; i < N; i++) {
-            for (int j = 1; j <= W; j++) {
-                if (j - w[i] >= 0) dp[i][j] = dp[i - 1][j - w[i]] + v[i];
-                dp[i][j] = Math.max(dp[i][j], dp[i - 1][j]);
+        int ans[] = new int[1];
+
+        find(0, -1, hasCat[0] ? 1 : 0, ans, adj, hasCat, m);
+
+        in.println(ans[0]);
+        in.close();
+
+    }
+
+    static void find(int cur, int par, int catsTillNow, int ans[], Map<Integer, List<Integer>> adj, boolean hasCat[], int m) {
+
+        if (catsTillNow > m) return;
+
+        if (adj.get(cur).size() == 1 && adj.get(cur).get(0) == par) {
+            ans[0]++;
+        }
+
+        for (int nei : adj.get(cur)) {
+            if (nei != par) {
+                find(nei, cur, hasCat[nei] ? (catsTillNow + 1) : 0, ans, adj, hasCat, m);
             }
         }
-
-        long answer = dp[N - 1][W];
-        //long answer = findMaxValue(N - 1, W, w, v);
-        System.out.println(answer);
-
     }
-
-    static long findMaxValue(int item, int weight, int w[], int v[]) {
-
-        if (item < 0 || weight <= 0) return 0L;
-        if (dp[item][weight] != -1) return dp[item][weight];
-
-        long takeItem = Long.MIN_VALUE;
-        if (weight - w[item] >= 0) {
-            takeItem = findMaxValue(item - 1, weight - w[item], w, v) + v[item];
-        }
-
-        long leaveItem = findMaxValue(item - 1, weight, w, v);
-
-        dp[item][weight] = Math.max(takeItem, leaveItem);
-        return dp[item][weight];
-    }
-
 
     // FAST IO TEMPLATE STARTS HERE:
     static class FastIO extends PrintWriter {

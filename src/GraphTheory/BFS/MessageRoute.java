@@ -72,7 +72,7 @@ public class MessageRoute {
         in.close();
     }
 
-    // FAST IO TEMPLE STARTS HERE:
+    // FAST IO TEMPLATE STARTS HERE:
     static class FastIO extends PrintWriter {
         private InputStream stream;
         private byte[] buf = new byte[1 << 16];
