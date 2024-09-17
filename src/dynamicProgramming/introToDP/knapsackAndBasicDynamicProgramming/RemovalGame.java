@@ -8,45 +8,42 @@ public class RemovalGame {
     static int ddp[][][];
     static long dp[][];
 
-    public static void main(String args[]){
+    public static void main(String args[]) {
 
         FastIO in = new FastIO();
 
         int n = in.nextInt();
-
         long a[] = new long[n];
 
-        for(int i = 0; i<n; i++){
+        for (int i = 0; i < n; i++) {
             a[i] = in.nextLong();
         }
 
         dp = new long[n][n];
 
-        for(int gap = 0; gap<n; gap++){
-            for(int i = 0, j=gap; j<n; i++, j++){
+        for (int gap = 0; gap < n; gap++) {
+            for (int i = 0, j = gap; j < n; i++, j++) {
 
-                if(gap==0){
+                if (gap == 0) {
                     dp[i][j] = a[i];
-                }
-                else if(gap==1){
-                    dp[i][j] = Math.max(a[i],a[j]);
-                }
-                else{
-                    //          Opponent took:    a[i+1]   |  a[j]
-                    //                               ^           ^
-                    long val1 = a[i] + Math.min(dp[i+2][j],dp[i+1][j-1]);
+                } else if (gap == 1) {
+                    dp[i][j] = Math.max(a[i], a[j]);
+                } else {
+                    //          Opponent took:    a[i+1]     |    a[j]
+                    //                               ^              ^
+                    long val1 = a[i] + Math.min(dp[i + 2][j], dp[i + 1][j - 1]);
 
 
-                    //          Opponent took:     a[i]   |  a[j-1]
-                    //                               ^           ^
-                    long val2 = a[j] + Math.min(dp[i+1][j-1], dp[i][j-2]);
+                    //          Opponent took:     a[i]      |    a[j-1]
+                    //                               ^               ^
+                    long val2 = a[j] + Math.min(dp[i + 1][j - 1], dp[i][j - 2]);
 
                     dp[i][j] = Math.max(val1, val2);
                 }
             }
         }
 
-        long ans= dp[0][n-1];
+        long ans = dp[0][n - 1];
         in.println(ans);
         in.close();
 
@@ -63,28 +60,27 @@ public class RemovalGame {
 //        in.close();
     }
 
-    static int find(int start, int end, boolean myTurn, int a[]){
+    static int find(int start, int end, boolean myTurn, int a[]) {
 
-        if(start>end) return 0;
+        if (start > end) return 0;
 
-        if(myTurn){
+        if (myTurn) {
 
-            if(ddp[start][end][1] != -1 ) return ddp[start][end][1];
+            if (ddp[start][end][1] != -1) return ddp[start][end][1];
 
-            int takeFirst = a[start] + find(start+1,end,false,a);
-            int takeLast  = a[end] + find(start,end-1,false,a);
+            int takeFirst = a[start] + find(start + 1, end, false, a);
+            int takeLast = a[end] + find(start, end - 1, false, a);
 
-            ddp[start][end][1] = Math.max(takeFirst,takeLast);
+            ddp[start][end][1] = Math.max(takeFirst, takeLast);
             return ddp[start][end][1];
-        }
-        else{
+        } else {
 
-            if(ddp[start][end][0] != -1) return ddp[start][end][0];
+            if (ddp[start][end][0] != -1) return ddp[start][end][0];
 
-            int opTakesFirst = find(start+1,end,true,a);
-            int opTakesLast = find(start,end-1,true,a);
+            int opTakesFirst = find(start + 1, end, true, a);
+            int opTakesLast = find(start, end - 1, true, a);
 
-            ddp[start][end][0] = Math.min(opTakesFirst,opTakesLast);
+            ddp[start][end][0] = Math.min(opTakesFirst, opTakesLast);
             return ddp[start][end][0];
         }
     }
