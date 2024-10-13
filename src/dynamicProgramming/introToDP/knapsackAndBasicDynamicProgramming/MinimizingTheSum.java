@@ -1,46 +1,61 @@
 package dynamicProgramming.introToDP.knapsackAndBasicDynamicProgramming;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
 
-public class MortalCombatTower {
-
+public class MinimizingTheSum {
     public static void main(String args[]) {
 
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
 
-        int tc = in.nextInt();
+        int t = in.nextInt();
 
-        while (tc-- > 0) {
+        while (t-- > 0) {
 
             int n = in.nextInt();
+            int k = in.nextInt();
+
             int a[] = new int[n];
 
             for (int i = 0; i < n; i++) {
                 a[i] = in.nextInt();
             }
 
-            // 0 is him, 1 is me
-            int dp[][] = new int[n][2];
+            long dp[][] = new long[n][k + 1];
 
-            dp[0][0] = a[0];
-            dp[0][1] = 100000000;
-
-            if (n >= 2) {
-                dp[1][0] = a[1] + a[0];
-                dp[1][1] = a[0];
+            for (int i = 0; i <= k; i++) {
+                dp[0][i] = a[0];
             }
 
-            for (int i = 2; i < n; i++) {
-                dp[i][0] = Math.min(dp[i - 1][1] + a[i], dp[i - 2][1] + a[i] + a[i - 1]);
-                dp[i][1] = Math.min(dp[i - 1][0], dp[i - 2][0]);
+            for (int i = 1; i < n; i++) {
+                dp[i][0] = (long) a[i] + dp[i - 1][0];
             }
 
-            int ans = Math.min(dp[n - 1][0], dp[n - 1][1]);
+            for (int i = 1; i < n; i++) {
+                for (int j = 1; j <= k; j++) {
 
+                    dp[i][j] = Long.MAX_VALUE;
+                    int prevPos = i;
+                    int min = Integer.MAX_VALUE;
+
+                    while (prevPos >= 0 && (i - prevPos) <= j) {
+                        min = Math.min(min, a[prevPos]);
+                        long toAdd = (long) min * (long) ((i - prevPos) + 1);
+                        if (prevPos - 1 >= 0) toAdd += dp[prevPos - 1][j - (i - prevPos)];
+                        dp[i][j] = Math.min(dp[i][j], toAdd);
+                        prevPos--;
+                    }
+                }
+            }
+
+            long ans = dp[n - 1][k];
             out.println(ans);
         }
+
         out.close();
     }
 
@@ -74,4 +89,3 @@ public class MortalCombatTower {
         }
     }
 }
-    
