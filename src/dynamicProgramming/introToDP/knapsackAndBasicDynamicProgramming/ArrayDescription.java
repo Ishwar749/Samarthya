@@ -6,11 +6,11 @@ import java.util.*;
 public class ArrayDescription {
 
     static long mod = 1000000007;
-    static long dp[][];
 
     public static void main(String args[]){
 
-        FastIO in = new FastIO();
+        FastScanner in = new FastScanner();
+        PrintWriter out = new PrintWriter(System.out);
 
         int n = in.nextInt();
         int m = in.nextInt();
@@ -20,141 +20,72 @@ public class ArrayDescription {
             a[i] = in.nextInt();
         }
 
-        if(n==1) {
-            if(a[0]==0) in.println(m);
-            else in.println(1);
-            in.close();
-            return;
-        }
-
-        dp = new long[m+1][n];
-
-        for(long e[]: dp){
-            Arrays.fill(e,(long)-1);
-        }
-
-        long ans = 0L;
+        long dp[][] = new long[n][m+1];
+    // dp[i][j] is the number of ways to make the array using the first i elements such that last number is j
 
         if(a[0]==0){
             for(int i =1; i<=m; i++){
-                ans = (ans%mod+find(i,1,a,m)%mod)%mod;
+                dp[0][i] = 1;
             }
         }
-        else {
-            ans = find(a[0], 1, a, m);
-        }
-        in.println(ans);
-        in.close();
+        else dp[0][a[0]] = 1;
 
-    }
+        for(int i = 1; i<n; i++){
 
-    static long find(int last, int cur, int a[], int m){
-
-        if(last<0 || last>m) return 0L;
-        if(cur==a.length) return 1L;
-
-        if(dp[last][cur]!=-1) return dp[last][cur];
-
-        long res = 0L;
-
-        if(a[cur]==0){
-            res = find(last,cur+1,a,m)%mod;
-            res = (res%mod+find(last-1,cur+1,a,m)%mod)%mod;
-            res = (res%mod+find(last+1,cur+1,a,m)%mod)%mod;
-        }
-        else{
-            if(Math.abs(last-a[cur])<=1) {
-                res = find(last, cur + 1, a, m)%mod;
+            if(a[i]==0){
+                for(int j = 1; j<=m; j++){
+                    long ways = dp[i-1][j]%mod;
+                    if(j-1>0) ways = (ways%mod + dp[i-1][j-1]%mod)%mod;
+                    if(j+1<=m) ways = (ways%mod + dp[i-1][j+1]%mod)%mod;
+                    dp[i][j] = ways;
+                }
+            }
+            else{
+                long ways = dp[i-1][a[i]]%mod;
+                if(a[i]-1>0) ways = (ways%mod + dp[i-1][a[i]-1]%mod)%mod;
+                if(a[i]+1<=m) ways = (ways%mod + dp[i-1][a[i]+1]%mod)%mod;
+                dp[i][a[i]] = ways;
             }
         }
 
-        dp[last][cur] = res;
-        return res;
+        long ans = 0;
+
+        for(int i =1; i<=m; i++){
+            ans = (ans%mod + dp[n-1][i]%mod)%mod;
+        }
+
+        out.println(ans);
+        out.close();
     }
 
     // FAST IO TEMPLATE STARTS HERE:
-    static class FastIO extends PrintWriter {
-        private InputStream stream;
-        private byte[] buf = new byte[1 << 16];
-        private int curChar;
-        private int numChars;
+    static class FastScanner {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer("");
 
-        // standard input
-        public FastIO() {
-            this(System.in, System.out);
-        }
-
-        public FastIO(InputStream i, OutputStream o) {
-            super(o);
-            stream = i;
-        }
-
-        // file input
-        public FastIO(String i, String o) throws IOException {
-            super(new FileWriter(o));
-            stream = new FileInputStream(i);
-        }
-
-        // throws InputMismatchException() if previously detected end of file
-        private int nextByte() {
-            if (numChars == -1) {
-                throw new InputMismatchException();
-            }
-            if (curChar >= numChars) {
-                curChar = 0;
+        String next() {
+            while (!st.hasMoreTokens())
                 try {
-                    numChars = stream.read(buf);
+                    st = new StringTokenizer(br.readLine());
                 } catch (IOException e) {
-                    throw new InputMismatchException();
+                    e.printStackTrace();
                 }
-                if (numChars == -1) {
-                    return -1;  // end of file
-                }
-            }
-            return buf[curChar++];
+            return st.nextToken();
         }
 
-        // to read in entire lines, replace c <= ' '
-        // with a function that checks whether c is a line break
-        public String next() {
-            int c;
-            do {
-                c = nextByte();
-            } while (c <= ' ');
-
-            StringBuilder res = new StringBuilder();
-            do {
-                res.appendCodePoint(c);
-                c = nextByte();
-            } while (c > ' ');
-            return res.toString();
+        int nextInt() {
+            return Integer.parseInt(next());
         }
 
-        public int nextInt() {  // nextLong() would be implemented similarly
-            int c;
-            do {
-                c = nextByte();
-            } while (c <= ' ');
-
-            int sgn = 1;
-            if (c == '-') {
-                sgn = -1;
-                c = nextByte();
-            }
-
-            int res = 0;
-            do {
-                if (c < '0' || c > '9') {
-                    throw new InputMismatchException();
-                }
-                res = 10 * res + c - '0';
-                c = nextByte();
-            } while (c > ' ');
-            return res * sgn;
+        int[] readArray(int n) {
+            int[] a = new int[n];
+            for (int i = 0; i < n; i++)
+                a[i] = nextInt();
+            return a;
         }
 
-        public double nextDouble() {
-            return Double.parseDouble(next());
+        long nextLong() {
+            return Long.parseLong(next());
         }
     }
 }
