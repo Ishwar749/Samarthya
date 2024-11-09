@@ -1,6 +1,5 @@
-package dynamicProgramming.classicDP;
+package dynamicProgramming.classicDP.longestIncreasingSubsequence;
 
-import java.io.*;
 import java.util.*;
 
 // The approach below works in O(NlogN), here's how:

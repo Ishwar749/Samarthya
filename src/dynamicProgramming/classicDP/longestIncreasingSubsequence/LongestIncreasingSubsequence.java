@@ -1,6 +1,5 @@
-package dynamicProgramming.classicDP;
+package dynamicProgramming.classicDP.longestIncreasingSubsequence;
 
-import java.io.*;
 import java.util.*;
 
 // Problem: https://leetcode.com/problems/longest-increasing-subsequence/description/
