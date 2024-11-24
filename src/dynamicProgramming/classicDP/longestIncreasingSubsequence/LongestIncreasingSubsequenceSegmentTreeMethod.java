@@ -13,7 +13,7 @@ public class LongestIncreasingSubsequenceSegmentTreeMethod {
     public static void main(String args[]) {
 
         segmentTree = new int[(4 * maxAi) + 1];
-        int[] nums = {0,1,0,3,2,3};
+        int[] nums = {2, 1, 5, 4, 3};
         int LIS = lengthOfLIS(nums);
 
         System.out.println(LIS);
