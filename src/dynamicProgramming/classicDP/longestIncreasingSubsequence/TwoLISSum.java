@@ -5,6 +5,7 @@ import java.util.*;
 
 // Problem: https://atcoder.jp/contests/arc149/tasks/arc149_b
 // Solution: Sort A and take all its elements in the answer. Calculate LIS for B and add it to answer.
+// Editorial: https://atcoder.jp/contests/arc149/editorial/4954
 
 public class TwoLISSum {
     static class Pair {
