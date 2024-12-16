@@ -5,7 +5,7 @@ import java.util.*;
 
 public class PerfectNumber {
 
-    static int[][][] dp;
+    static int[][] dp;
 
     public static void main(String[] args) {
 
@@ -13,6 +13,10 @@ public class PerfectNumber {
         PrintWriter out = new PrintWriter(System.out);
 
         int k = in.nextInt();
+        dp = new int[20][11];
+        for (int[] a : dp) {
+            Arrays.fill(a, -1);
+        }
 
         long low = 0;
         long high = (long) 1e18;
@@ -20,16 +24,10 @@ public class PerfectNumber {
         while (low < high) {
             long mid = low + (high - low) / 2;
 
-            String cur = mid + "";
+            StringBuilder cur = new StringBuilder(mid + "");
             int digitsToPlace = cur.length();
-            dp = new int[20][11][2];
-            for (int[][] aa : dp) {
-                for (int[] a : aa) {
-                    Arrays.fill(a, -1);
-                }
-            }
 
-            int countOfPerfects = findNumbers(digitsToPlace, 10, 1, cur);
+            int countOfPerfects = findNumbers(digitsToPlace, 10, true, cur.reverse().toString());
 
             if (countOfPerfects >= k) high = mid;
             else low = mid + 1;
@@ -39,28 +37,28 @@ public class PerfectNumber {
         out.close();
     }
 
-    static int findNumbers(int digitsToPlace, int sumToMake, int isTight, String lastNumber) {
+    static int findNumbers(int digitsToPlace, int sumToMake, boolean isTight, String lastNumber) {
         if (digitsToPlace == 0) {
             if (sumToMake == 0) return 1;
             else return 0;
         }
 
-        if (dp[digitsToPlace][sumToMake][isTight] != -1)
-            return dp[digitsToPlace][sumToMake][isTight];
+        if (!isTight && dp[digitsToPlace][sumToMake] != -1)
+            return dp[digitsToPlace][sumToMake];
 
-        int upperBound = isTight == 1 ? getDigitAtIndex(lastNumber.length() - digitsToPlace, lastNumber) : 9;
+        int upperBound = isTight ? getDigitAtIndex(digitsToPlace - 1, lastNumber) : 9;
         int answer = 0;
 
         for (int digit = 0; digit <= upperBound; digit++) {
             if (sumToMake - digit >= 0) {
-                int nextIsTight = isTight;
-                if (digit < upperBound) nextIsTight = 0;
+                boolean nextIsTight = isTight;
+                if (digit < upperBound) nextIsTight = false;
 
                 answer += findNumbers(digitsToPlace - 1, sumToMake - digit, nextIsTight, lastNumber);
             }
         }
 
-        dp[digitsToPlace][sumToMake][isTight] = answer;
+        if (!isTight) dp[digitsToPlace][sumToMake] = answer;
         return answer;
     }
 
