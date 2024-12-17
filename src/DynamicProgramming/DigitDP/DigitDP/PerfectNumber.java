@@ -3,6 +3,8 @@ package DynamicProgramming.DigitDP.DigitDP;
 import java.io.*;
 import java.util.*;
 
+// Problem: https://codeforces.com/problemset/problem/919/B
+
 public class PerfectNumber {
 
     static int[][] dp;
