@@ -3,47 +3,49 @@ package DynamicProgramming.BitmaskDP;
 import java.io.*;
 import java.util.*;
 
-// Problem: https://atcoder.jp/contests/dp/tasks/dp_o
+// Problem: https://cses.fi/problemset/task/1690
+// The Solution below gave TLE:
 
-public class Matching {
-    static long[][] dp;
+public class HamiltonianFlights {
     static long MOD = (long) (1e9 + 7);
+    static long[][] dp;
 
     public static void main(String[] args) {
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
-
         int n = in.nextInt();
-        int[][] a = new int[n][n];
+        int m = in.nextInt();
+
+        List<List<Integer>> adj = new ArrayList<>();
+        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+
         dp = new long[n][1 << n];
+        for (long[] e : dp) Arrays.fill(e, -1);
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                a[i][j] = in.nextInt();
-            }
+        for (int i = 0; i < m; i++) {
+            int u = in.nextInt() - 1;
+            int v = in.nextInt() - 1;
+            adj.get(u).add(v);
         }
 
-        for (long[] e : dp) {
-            Arrays.fill(e, -1);
-        }
-
-        long answer = findCompatibles(0, 0, a);
+        long answer = findWays(0, 1, adj);
         out.println(answer);
         out.close();
     }
 
-    static long findCompatibles(int ind, int bitmask, int[][] a) {
-        if (ind == a.length)
-            return 1;
+    static long findWays(int ind, int bitmask, List<List<Integer>> adj) {
+        if (ind == adj.size() - 1 && Integer.bitCount(bitmask) == adj.size()) return 1;
+        else if (ind == adj.size() - 1) return 0;
+        else if (Integer.bitCount(bitmask) == adj.size()) return 0;
 
         if (dp[ind][bitmask] != -1)
             return dp[ind][bitmask];
 
         long ways = 0;
 
-        for (int j = 0; j < a.length; j++) {
-            if (a[ind][j] == 1 && !isSet(bitmask, j)) {
-                ways = modAdd(ways, findCompatibles(ind + 1, set(bitmask, j), a));
+        for (int nei : adj.get(ind)) {
+            if (nei != ind && !isSet(bitmask, nei)) {
+                ways = modAdd(ways, findWays(nei, set(bitmask, nei), adj));
             }
         }
 
