@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 // Problem: https://cses.fi/problemset/task/1690
-// The Solution below gave TLE:
 
 public class HamiltonianFlights {
     static long MOD = (long) (1e9 + 7);
@@ -17,22 +16,42 @@ public class HamiltonianFlights {
         int m = in.nextInt();
 
         List<List<Integer>> adj = new ArrayList<>();
-        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+        for (int i = 0; i <= n; i++) adj.add(new ArrayList<>());
 
-        dp = new long[n][1 << n];
-        for (long[] e : dp) Arrays.fill(e, -1);
+        dp = new long[1 << 20][21];
 
         for (int i = 0; i < m; i++) {
-            int u = in.nextInt() - 1;
-            int v = in.nextInt() - 1;
-            adj.get(u).add(v);
+            int u = in.nextInt();
+            int v = in.nextInt();
+            adj.get(v).add(u);
         }
 
-        long answer = findWays(0, 1, adj);
+        dp[1][1] = 1;
+
+        for (int subset = 2; subset < (1 << n); subset++) {
+            if (isSet(subset, n - 1) && subset != ((1 << n) - 1)) {
+                continue;
+            }
+            for (int d = 1; d <= n; d++) {
+                if (!isSet(subset, d - 1)) continue;
+                for (int nei : adj.get(d)) {
+                    if (isSet(subset, nei - 1)) {
+                        dp[subset][d] = modAdd(dp[subset][d], dp[(subset - (1 << (d - 1)))][nei]);
+                    }
+                }
+            }
+        }
+
+        long answer = dp[(1 << n) - 1][n];
         out.println(answer);
         out.close();
     }
 
+
+    /*
+    The below function uses dp array of kind: dp[index][bitmask],
+    in the iterative approach above, the dp array used is dp[bitmask][index]
+    */
     static long findWays(int ind, int bitmask, List<List<Integer>> adj) {
         if (ind == adj.size() - 1 && Integer.bitCount(bitmask) == adj.size()) return 1;
         else if (ind == adj.size() - 1) return 0;
@@ -52,6 +71,7 @@ public class HamiltonianFlights {
         dp[ind][bitmask] = ways;
         return ways;
     }
+
 
     static boolean isSet(int mask, int pos) {
         if (((mask >> pos) & 1) == 1) return true;
