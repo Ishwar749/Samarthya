@@ -1,0 +1,14 @@
+
+
+https://cp-algorithms.com/string/prefix-function.html#
+(Read the starting parts (the naive algorithm, the optimization of it etc))
+
+Read KMP from Algorithms by Robert Sedgewick
+Video: https://www.youtube.com/watch?v=6TW3JSVEJQE   (Skip to KMP Section)
+
+Read this (Explains KMP using failure function):
+https://www.cs.emory.edu/~cheung/Courses/253/Syllabus/Text/Matching-KMP2.html
+
+Solve:
+https://codeforces.com/contest/808/problem/G
+If not able to solve refer: https://codeforces.com/contest/808/submission/27132006
