@@ -1,16 +1,24 @@
-package CodeForces.EducationalRound173;
+package CodeForces.Contests.EducationalRound173;
 
 import java.io.*;
 import java.util.*;
-public class C {
+
+public class A {
     public static void main(String[] args) {
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
 
         int tests = in.nextInt();
 
-        while(tests-- > 0) {
+        while (tests-- > 0) {
+            long x = in.nextLong();
+            long cnt = 1;
+            while (x > 3) {
+                cnt = cnt * 2;
+                x = x / 4;
+            }
 
+            out.println(cnt);
         }
         out.close();
     }
@@ -31,6 +39,7 @@ public class C {
 
         Arrays.sort(a);
     }
+
     static void ruffleSort(long a[]) {
 
         int n = a.length;
@@ -47,6 +56,7 @@ public class C {
 
         Arrays.sort(a);
     }
+
     static class FastScanner {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer("");

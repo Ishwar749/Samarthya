@@ -1,4 +1,4 @@
-package CodeForces.Round995;
+package CodeForces.Contests.Round995;
 
 import java.io.*;
 import java.util.*;

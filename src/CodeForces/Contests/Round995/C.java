@@ -1,9 +1,10 @@
-package CodeForces.EducationalRound173;
+package CodeForces.Contests.Round995;
+
 
 import java.io.*;
 import java.util.*;
 
-public class A {
+public class C {
     public static void main(String[] args) {
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
@@ -11,50 +12,40 @@ public class A {
         int tests = in.nextInt();
 
         while (tests-- > 0) {
-            long x = in.nextLong();
-            long cnt = 1;
-            while (x > 3) {
-                cnt = cnt * 2;
-                x = x / 4;
-            }
+            int n = in.nextInt();
+            int m = in.nextInt();
+            int k = in.nextInt();
 
-            out.println(cnt);
+            int[] a = new int[m];
+            int[] q = new int[k];
+
+            for (int i = 0; i < m; i++) a[i] = in.nextInt();
+            for (int i = 0; i < k; i++) q[i] = in.nextInt();
+
+            if (k == n - 1) {
+                Set<Integer> knows = new HashSet<>();
+                for (int e : q) knows.add(e);
+
+                StringBuilder sb = new StringBuilder();
+
+                for (int e : a) {
+                    if (!knows.contains(e)) sb.append(1);
+                    else sb.append(0);
+                }
+                out.println(sb);
+            } else if (k == n) {
+                for (int i = 0; i < m; i++) {
+                    out.print(1);
+                }
+                out.println();
+            } else {
+                for (int i = 0; i < m; i++) {
+                    out.print(0);
+                }
+                out.println();
+            }
         }
         out.close();
-    }
-
-    static void ruffleSort(int a[]) {
-
-        int n = a.length;
-
-        Random r = new Random();
-
-        for (int i = 0; i < n; i++) {
-
-            int oi = r.nextInt(n);
-            int temp = a[oi];
-            a[oi] = a[i];
-            a[i] = temp;
-        }
-
-        Arrays.sort(a);
-    }
-
-    static void ruffleSort(long a[]) {
-
-        int n = a.length;
-
-        Random r = new Random();
-
-        for (int i = 0; i < n; i++) {
-
-            int oi = r.nextInt(n);
-            long temp = a[oi];
-            a[oi] = a[i];
-            a[i] = temp;
-        }
-
-        Arrays.sort(a);
     }
 
     static class FastScanner {

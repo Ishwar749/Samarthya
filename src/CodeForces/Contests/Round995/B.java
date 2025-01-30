@@ -1,10 +1,10 @@
-package CodeForces.Round995;
+package CodeForces.Contests.Round995;
 
 
 import java.io.*;
 import java.util.*;
 
-public class C {
+public class B {
     public static void main(String[] args) {
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
@@ -12,38 +12,22 @@ public class C {
         int tests = in.nextInt();
 
         while (tests-- > 0) {
-            int n = in.nextInt();
-            int m = in.nextInt();
-            int k = in.nextInt();
+            long n = in.nextLong();
+            long a = in.nextLong();
+            long b = in.nextLong();
+            long c = in.nextLong();
 
-            int[] a = new int[m];
-            int[] q = new int[k];
+            long sum = a + b + c;
+            long days = (n / sum) * 3;
+            long mod = n % sum;
 
-            for (int i = 0; i < m; i++) a[i] = in.nextInt();
-            for (int i = 0; i < k; i++) q[i] = in.nextInt();
-
-            if (k == n - 1) {
-                Set<Integer> knows = new HashSet<>();
-                for (int e : q) knows.add(e);
-
-                StringBuilder sb = new StringBuilder();
-
-                for (int e : a) {
-                    if (!knows.contains(e)) sb.append(1);
-                    else sb.append(0);
-                }
-                out.println(sb);
-            } else if (k == n) {
-                for (int i = 0; i < m; i++) {
-                    out.print(1);
-                }
-                out.println();
-            } else {
-                for (int i = 0; i < m; i++) {
-                    out.print(0);
-                }
-                out.println();
+            if (mod > 0) {
+                if (mod <= a) days++;
+                else if (mod <= (a + b)) days += 2;
+                else days += 3;
             }
+
+            out.println(days);
         }
         out.close();
     }

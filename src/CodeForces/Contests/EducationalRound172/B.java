@@ -1,4 +1,4 @@
-package CodeForces.EducationalRound172;
+package CodeForces.Contests.EducationalRound172;
 
 import java.io.*;
 import java.util.*;
