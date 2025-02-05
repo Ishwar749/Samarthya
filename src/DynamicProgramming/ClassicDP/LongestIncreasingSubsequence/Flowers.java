@@ -6,7 +6,7 @@ import java.util.*;
 // Problem: https://atcoder.jp/contests/dp/tasks/dp_q
 
 // For this same problem, we have coded another approach that uses Segment Trees.
-// Open  FlowersAtCoder.java  to have a look at that approach.
+// Open  DPOptimizations/Flower.java  to have a look at that approach.
 
 public class Flowers {
     public static void main(String args[]) {
