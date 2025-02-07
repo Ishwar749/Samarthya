@@ -61,7 +61,8 @@ public class SegmentTreeForTheSum {
             int m = (lx + rx) / 2;
             long s1 = sum(l, r, (2 * x) + 1, lx, m);
             long s2 = sum(l, r, (2 * x) + 2, m, rx);
-            return s1 + s2;
+            sums[x] = s1 + s2;
+            return sums[x];
         }
     }
 
