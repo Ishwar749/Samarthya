@@ -17,6 +17,7 @@ public class RoadImprovement {
     }
 
     static Map<Integer, List<Edge>> graph;
+    static int answer;
 
     public static void main(String[] args) {
         InputReader in = new InputReader(System.in);
@@ -30,51 +31,43 @@ public class RoadImprovement {
             graph.get(u).add(new Edge(v, i));
             graph.get(v).add(new Edge(u, i));
         }
-
-        boolean[] vis = new boolean[n];
-        int[] days = new int[n];
-        int[] repairEdgeOn = new int[n - 1];
-        vis[0] = true;
-        dfs(0, vis, days, repairEdgeOn);
-
-        Map<Integer, List<Integer>> answer = new HashMap<>();
-        for (int i = 0; i < n - 1; i++) {
-            int day = repairEdgeOn[i];
-            if (!answer.containsKey(day)) answer.put(day, new ArrayList<>());
-            answer.get(day).add(i + 1);
+        answer = 0;
+        for (int key : graph.keySet()) {
+            answer = Math.max(answer, graph.get(key).size());
         }
 
-        int totalDays = answer.keySet().size();
-        out.println(totalDays);
-        for (int i = 1; i <= totalDays; i++) {
-            out.print(answer.get(i).size() + " ");
-            for (int e : answer.get(i)) out.print(e + " ");
+        boolean[] vis = new boolean[n];
+        int[] repairOn = new int[n - 1];
+        vis[0] = true;
+        dfs(0, vis, repairOn, 0);
+
+        out.println(answer);
+        Map<Integer, List<Integer>> res = new HashMap<>();
+        for (int edge = 0; edge < n - 1; edge++) {
+            int day = repairOn[edge];
+            if (!res.containsKey(day)) res.put(day, new ArrayList<>());
+            res.get(day).add(edge);
+        }
+
+        for (int i = 1; i <= answer; i++) {
+            out.print(res.get(i).size() + " ");
+            for (int edge : res.get(i)) out.print((edge + 1) + " ");
             out.println();
         }
         out.close();
     }
 
-    static void dfs(int cur, boolean[] vis, int[] days, int[] repairEdgeOn) {
-        for (Edge e : graph.get(cur)) {
-            if (!vis[e.v]) {
-                vis[e.v] = true;
-                int day = getFirstClearBit(days[cur], days[e.v]);
-                repairEdgeOn[e.n] = day + 1;
-                days[cur] = days[cur] | (1 << day);
-                days[e.v] = days[e.v] | (1 << day);
-                dfs(e.v, vis, days, repairEdgeOn);
+    static void dfs(int cur, boolean[] vis, int[] repairOn, int skip) {
+        int day = 1;
+        for (Edge nei : graph.get(cur)) {
+            if (!vis[nei.v]) {
+                vis[nei.v] = true;
+                if (day == skip) day++;
+                repairOn[nei.n] = day;
+                dfs(nei.v, vis, repairOn, day);
+                day++;
             }
         }
-    }
-
-    static int getFirstClearBit(int a, int b) {
-        int x = 1;
-        int pos = 0;
-        while ((x & a) > 0 || (x & b) > 0) {
-            x = x << 1;
-            pos++;
-        }
-        return pos;
     }
 
     static class InputReader {
