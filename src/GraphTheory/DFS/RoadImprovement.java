@@ -3,81 +3,78 @@ package GraphTheory.DFS;
 import java.io.*;
 import java.util.*;
 
-// Problem: https://codeforces.com/contest/1144/problem/F
+// Problem: https://codeforces.com/contest/638/problem/C
 
-public class GraphWithoutLongDirectedPaths {
-
-    static class Pair {
+public class RoadImprovement {
+    static class Edge {
         int v;
-        int edgeNum;
-        int dir;
+        int n;
 
-        public Pair(int v, int edgeNum, int dir) {
+        public Edge(int v, int n) {
             this.v = v;
-            this.edgeNum = edgeNum;
-            this.dir = dir;
+            this.n = n;
         }
     }
+
+    static Map<Integer, List<Edge>> graph;
 
     public static void main(String[] args) {
         InputReader in = new InputReader(System.in);
         PrintWriter out = new PrintWriter(System.out);
-
+        graph = new HashMap<>();
         int n = in.nextInt();
-        int m = in.nextInt();
-        Map<Integer, List<Integer>> graph = new HashMap<>();
-        Map<Integer, int[]> edges = new HashMap<>();
         for (int i = 0; i < n; i++) graph.put(i, new ArrayList<>());
-
-        for (int i = 0; i < m; i++) {
+        for (int i = 0; i < n - 1; i++) {
             int u = in.nextInt() - 1;
             int v = in.nextInt() - 1;
-            graph.get(u).add(v);
-            graph.get(v).add(u);
-            edges.put(i, new int[]{u, v});
+            graph.get(u).add(new Edge(v, i));
+            graph.get(v).add(new Edge(u, i));
         }
 
-        int[] side = new int[n];
-        Arrays.fill(side, -1);
+        boolean[] vis = new boolean[n];
+        int[] days = new int[n];
+        int[] repairEdgeOn = new int[n - 1];
+        vis[0] = true;
+        dfs(0, vis, days, repairEdgeOn);
 
-        if (divideInTwoSides(0, graph, side)) {
-            out.println("YES");
-            int[] dirs = new int[m];
-            for (int key : edges.keySet()) {
-                int u = edges.get(key)[0];
-                int v = edges.get(key)[1];
-                if (side[u] == 0 && side[v] == 1) dirs[key] = 0;
-                else dirs[key] = 1;
-            }
+        Map<Integer, List<Integer>> answer = new HashMap<>();
+        for (int i = 0; i < n - 1; i++) {
+            int day = repairEdgeOn[i];
+            if (!answer.containsKey(day)) answer.put(day, new ArrayList<>());
+            answer.get(day).add(i + 1);
+        }
 
-            for (int i = 0; i < m; i++) {
-                out.print(dirs[i]);
-            }
-        } else {
-            out.println("NO");
+        int totalDays = answer.keySet().size();
+        out.println(totalDays);
+        for (int i = 1; i <= totalDays; i++) {
+            out.print(answer.get(i).size() + " ");
+            for (int e : answer.get(i)) out.print(e + " ");
+            out.println();
         }
         out.close();
     }
 
-    static boolean divideInTwoSides(int start, Map<Integer, List<Integer>> graph, int[] side) {
-        side[start] = 0;
-        Queue<Integer> q = new LinkedList<>();
-        q.add(start);
-
-        while (!q.isEmpty()) {
-            int size = q.size();
-            for (int i = 0; i < size; i++) {
-                int cur = q.poll();
-                for (Integer nei : graph.get(cur)) {
-                    if (side[nei] == -1) {
-                        side[nei] = (side[cur] + 1) % 2;
-                        q.add(nei);
-                    } else if (side[nei] == side[cur]) return false;
-                }
+    static void dfs(int cur, boolean[] vis, int[] days, int[] repairEdgeOn) {
+        for (Edge e : graph.get(cur)) {
+            if (!vis[e.v]) {
+                vis[e.v] = true;
+                int day = getFirstClearBit(days[cur], days[e.v]);
+                repairEdgeOn[e.n] = day + 1;
+                days[cur] = days[cur] | (1 << day);
+                days[e.v] = days[e.v] | (1 << day);
+                dfs(e.v, vis, days, repairEdgeOn);
             }
         }
+    }
 
-        return true;
+    static int getFirstClearBit(int a, int b) {
+        int x = 1;
+        int pos = 0;
+        while ((x & a) > 0 || (x & b) > 0) {
+            x = x << 1;
+            pos++;
+        }
+        return pos;
     }
 
     static class InputReader {
