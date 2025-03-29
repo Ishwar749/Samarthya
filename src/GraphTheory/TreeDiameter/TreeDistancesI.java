@@ -1,25 +1,18 @@
-package GraphTheory.TreeDiameter;
+//package GraphTheory.TreeDiameter;
 
 import java.io.*;
 import java.util.*;
 
-// Problem: https://cses.fi/problemset/task/1131
-
-
+// Problem: https://cses.fi/problemset/task/1132
 /*
 Blog: https://codeforces.com/blog/entry/101271
 
-Finding a diameter
-
-Given a tree with n nodes are multiple ways to find a diameter. Here is one of the simplest ways:
-
-Run a DFS from any node p. Let a be a node whose distance from node p is maximized.
-Run another DFS from node a. Let b be a node whose distance from node a is maximized.
-a→b is a diameter.
-
+Farthest node for each node
+For each node i, let's find a node j such that dist(i,j) is maximum.
+Claim: j=a or j=b always works.
 */
 
-public class TreeDiameter {
+public class TreeDistancesI {
     public static void main(String[] args) {
         InputReader in = new InputReader(System.in);
         PrintWriter out = new PrintWriter(System.out);
@@ -35,10 +28,6 @@ public class TreeDiameter {
             Tree.get(v).add(u);
         }
 
-//        int[] answer = new int[1];
-//        maxDistance(0, -1, Tree, answer);
-//        out.println(answer[0]);
-
         int[] distFromAnyNode = bfs(0, Tree);
         int maxDist = -1;
         int firstEndOfDiameter = -1;
@@ -50,32 +39,21 @@ public class TreeDiameter {
             }
         }
 
-        int[] distFromOneEndOfDiameter = bfs(firstEndOfDiameter, Tree);
+        int[] distFromFirstEnd = bfs(firstEndOfDiameter, Tree);
         maxDist = -1;
+        int secondEndOfDiameter = -1;
 
-        for (int i = 0; i < n; i++) maxDist = Math.max(maxDist, distFromOneEndOfDiameter[i]);
-
-        out.println(maxDist);
-        out.close();
-    }
-
-    static Integer maxDistance(int cur, int par, Map<Integer, List<Integer>> Tree, int[] answer) {
-
-        int max1 = 0;
-        int max2 = 0;
-
-        for (int child : Tree.get(cur)) {
-            if (child != par) {
-                int dist = maxDistance(child, cur, Tree, answer);
-                if (dist > max1) {
-                    max2 = max1;
-                    max1 = dist;
-                } else max2 = Math.max(max2, dist);
+        for (int i = 0; i < n; i++) {
+            if (distFromFirstEnd[i] > maxDist) {
+                maxDist = distFromFirstEnd[i];
+                secondEndOfDiameter = i;
             }
         }
 
-        answer[0] = Math.max(answer[0], max1 + max2);
-        return max1 + 1;
+        int[] distFromSecondEnd = bfs(secondEndOfDiameter, Tree);
+
+        for (int i = 0; i < n; i++) out.print(Math.max(distFromFirstEnd[i], distFromSecondEnd[i]) + " ");
+        out.close();
     }
 
     static int[] bfs(int start, Map<Integer, List<Integer>> Tree) {
