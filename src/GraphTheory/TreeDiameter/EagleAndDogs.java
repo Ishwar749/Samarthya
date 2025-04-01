@@ -1,63 +1,64 @@
 package GraphTheory.TreeDiameter;
 
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
-// Problem: https://cses.fi/problemset/task/1132
-/*
-Blog: https://codeforces.com/blog/entry/101271
+// Problem: https://www.spoj.com/problems/EAGLE1/
 
-Farthest node for each node
-For each node i, let's find a node j such that dist(i,j) is maximum.
-Claim: j=a or j=b always works.
-*/
-
-public class TreeDistancesI {
+public class EagleAndDogs {
     public static void main(String[] args) {
         InputReader in = new InputReader(System.in);
         PrintWriter out = new PrintWriter(System.out);
-        Map<Integer, List<Integer>> Tree = new HashMap<>();
 
-        int n = in.nextInt();
-        for (int i = 0; i < n; i++) Tree.put(i, new ArrayList<>());
+        int tests = in.nextInt();
 
-        for (int i = 0; i < n - 1; i++) {
-            int u = in.nextInt() - 1;
-            int v = in.nextInt() - 1;
-            Tree.get(u).add(v);
-            Tree.get(v).add(u);
-        }
+        while (tests-- > 0) {
+            int n = in.nextInt();
+            Map<Integer, List<Pair>> graph = new HashMap<>();
 
-        int[] distFromAnyNode = bfs(0, Tree);
-        int maxDist = -1;
-        int firstEndOfDiameter = -1;
-
-        for (int i = 0; i < n; i++) {
-            if (distFromAnyNode[i] > maxDist) {
-                maxDist = distFromAnyNode[i];
-                firstEndOfDiameter = i;
+            for (int i = 0; i < n; i++) graph.put(i, new ArrayList<>());
+            for (int i = 0; i < n - 1; i++) {
+                int u = in.nextInt() - 1;
+                int v = in.nextInt() - 1;
+                int w = in.nextInt();
+                graph.get(u).add(new Pair(v, w));
+                graph.get(v).add(new Pair(u, w));
             }
-        }
 
-        int[] distFromFirstEnd = bfs(firstEndOfDiameter, Tree);
-        maxDist = -1;
-        int secondEndOfDiameter = -1;
+            int[] distFromStart = bfs(0, n, graph);
+            int maxDist = -1;
+            int firstEndOfDiameter = -1;
 
-        for (int i = 0; i < n; i++) {
-            if (distFromFirstEnd[i] > maxDist) {
-                maxDist = distFromFirstEnd[i];
-                secondEndOfDiameter = i;
+            for (int i = 0; i < n; i++) {
+                if (distFromStart[i] > maxDist) {
+                    maxDist = distFromStart[i];
+                    firstEndOfDiameter = i;
+                }
             }
+
+            int[] distFromFirstEnd = bfs(firstEndOfDiameter, n, graph);
+            maxDist = -1;
+            int secondEndOfDiameter = -1;
+
+            for (int i = 0; i < n; i++) {
+                if (distFromFirstEnd[i] > maxDist) {
+                    maxDist = distFromFirstEnd[i];
+                    secondEndOfDiameter = i;
+                }
+            }
+
+            int[] distFromSecondEnd = bfs(secondEndOfDiameter, n, graph);
+
+            for (int i = 0; i < n; i++) {
+                int answer = Math.max(distFromFirstEnd[i], distFromSecondEnd[i]);
+                out.print(answer + " ");
+            }
+            out.println();
         }
-
-        int[] distFromSecondEnd = bfs(secondEndOfDiameter, Tree);
-
-        for (int i = 0; i < n; i++) out.print(Math.max(distFromFirstEnd[i], distFromSecondEnd[i]) + " ");
         out.close();
     }
 
-    static int[] bfs(int start, Map<Integer, List<Integer>> Tree) {
-        int n = Tree.keySet().size();
+    static int[] bfs(int start, int n, Map<Integer, List<Pair>> graph) {
         int[] dist = new int[n];
         Arrays.fill(dist, -1);
         dist[start] = 0;
@@ -67,15 +68,25 @@ public class TreeDistancesI {
 
         while (!q.isEmpty()) {
             int cur = q.poll();
-            for (int nei : Tree.get(cur)) {
-                if (dist[nei] == -1) {
-                    dist[nei] = dist[cur] + 1;
-                    q.add(nei);
+            for (Pair nei : graph.get(cur)) {
+                if (dist[nei.v] == -1) {
+                    dist[nei.v] = dist[cur] + nei.w;
+                    q.add(nei.v);
                 }
             }
         }
 
         return dist;
+    }
+
+    static class Pair {
+        int v;
+        int w;
+
+        public Pair(int v, int w) {
+            this.v = v;
+            this.w = w;
+        }
     }
 
     static class InputReader {
