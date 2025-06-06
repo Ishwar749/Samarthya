@@ -1,7 +1,5 @@
 package GraphTheory.BinaryLiftingAndLCA;
 
-// Problem: https://cses.fi/problemset/task/1687
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,7 +7,8 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class CompanyQueriesI {
+public class CompanyQueriesII {
+
     public static void main(String[] args) {
 
         FastScanner in = new FastScanner();
@@ -30,25 +29,49 @@ public class CompanyQueriesI {
         fillParentValues(n, parent, nthParent);
 
         for (int qq = 0; qq < q; qq++) {
-            int x = in.nextInt() - 1;
-            int k = in.nextInt();
+            int a = in.nextInt() - 1;
+            int b = in.nextInt() - 1;
 
-            if (k > n || x < 0) out.println(-1);
-            else {
-                int answer = x;
+            int low = 1;
+            int high = n;
+            int answer = 1;
 
-                for (int i = 0; i < 20; i++) {
-                    if (((1 << i) & k) > 0) answer = nthParent[answer][i];
-                    if (answer == -1) break;
+            while (low < high) {
+                int mid = low + (high - low) / 2;
+                int nthA = findNthParent(a, mid, nthParent);
+                int nthB = findNthParent(b, mid, nthParent);
+
+                if (nthA == nthB) {
+                    answer = nthA;
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
                 }
-
-
-                if (answer != -1) answer++; // Converting to 1 based indexing
-                out.println(answer);
             }
+
+            out.println(answer);
         }
 
         out.close();
+    }
+
+    static int findNthParent(int node, int k, int[][] nthParent) {
+        int n = nthParent.length;
+
+        if (k > n || node < 0) return -1;
+        else {
+            int answer = node; // Zero based indexing
+
+            for (int i = 0; i < 20; i++) {
+                if (((1 << i) & k) > 0) answer = nthParent[answer][i];
+                if (answer == -1) break;
+            }
+
+
+            if (answer != -1) answer++; // Converting to 1 based indexing
+            System.out.println((node + 1) + "'s  " + k + "th parent is: " + answer);
+            return answer;
+        }
     }
 
     static void fillParentValues(int n, int[] parent, int[][] nthParent) {
