@@ -1,36 +1,35 @@
 package GraphTheory.BinaryLiftingAndLCA;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 
-public class CompanyQueriesII {
+public class DistanceQueries {
 
-    static int LOG = 20;
+    static int LOG = 16;
     static Map<Integer, List<Integer>> tree;
     static int[] depth;
     static int[][] nthParent;
 
     public static void main(String[] args) {
-
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
 
         int n = in.nextInt();
         int q = in.nextInt();
-
         tree = new HashMap<>();
-        depth = new int[n + 1];
-        nthParent = new int[n + 1][LOG];
+        for (int i = 0; i <= n; i++) tree.put(i, new ArrayList<>());
 
-        for (int i = 1; i <= n; i++) tree.put(i, new ArrayList<>());
-
-        for (int i = 2; i <= n; i++) {
-            int parent = in.nextInt();
-            tree.get(parent).add(i);
+        for (int i = 0; i < n - 1; i++) {
+            int u = in.nextInt();
+            int v = in.nextInt();
+            tree.get(u).add(v);
+            tree.get(v).add(u);
         }
+
+        depth = new int[n + 1];
+        Arrays.fill(depth, -1);
+        depth[1] = 0;
+        nthParent = new int[n + 1][LOG];
 
         dfs(1);
 
@@ -38,24 +37,18 @@ public class CompanyQueriesII {
             int a = in.nextInt();
             int b = in.nextInt();
 
-            out.println(findLCA(a, b));
+            int level = Math.min(depth[a], depth[b]);
+            int diff = Math.abs(depth[a] - depth[b]);
+            int lca = getLCA(a, b);
+
+            int answer = diff + 2 * (level - depth[lca]);
+            out.println(answer);
         }
 
         out.close();
     }
 
-    static void dfs(int node) {
-        for (int nei : tree.get(node)) {
-            depth[nei] = depth[node] + 1;
-            nthParent[nei][0] = node;
-            for (int i = 1; i < LOG; i++) {
-                nthParent[nei][i] = nthParent[nthParent[nei][i - 1]][i - 1];
-            }
-            dfs(nei);
-        }
-    }
-
-    static int findLCA(int a, int b) {
+    static int getLCA(int a, int b) {
         if (depth[b] > depth[a]) {
             int temp = a;
             a = b;
@@ -63,7 +56,7 @@ public class CompanyQueriesII {
         }
 
         int diff = depth[a] - depth[b];
-        for (int i = 0; i < LOG; i++) {
+        for (int i = LOG - 1; i >= 0; i--) {
             if (((1 << i) & diff) > 0) a = nthParent[a][i];
         }
 
@@ -77,6 +70,19 @@ public class CompanyQueriesII {
         }
 
         return nthParent[a][0];
+    }
+
+    static void dfs(int node) {
+        for (int nei : tree.get(node)) {
+            if (depth[nei] == -1) {
+                depth[nei] = depth[node] + 1;
+                nthParent[nei][0] = node;
+                for (int i = 1; i < LOG; i++) {
+                    nthParent[nei][i] = nthParent[nthParent[nei][i - 1]][i - 1];
+                }
+                dfs(nei);
+            }
+        }
     }
 
     static class FastScanner {
