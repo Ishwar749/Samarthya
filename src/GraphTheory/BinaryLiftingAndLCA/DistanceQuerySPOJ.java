@@ -14,119 +14,116 @@ public class DistanceQuerySPOJ {
         }
     }
 
-    static int LOG;
-    static int[] depth;
-    static int[][] min;
-    static int[][] max;
-    static int[][] par;
-    static Map<Integer, List<Node>> tree;
-
     public static void main(String[] args) {
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
 
-        int n = in.nextInt();
-        LOG = 0;
-        while ((1 << LOG) < n) {
-            LOG++;
-        }
-        depth = new int[n + 1];
-        Arrays.fill(depth, -1);
-        depth[1] = 0;
-        min = new int[n + 1][LOG];
-        max = new int[n + 1][LOG];
-        par = new int[n + 1][LOG];
-        for (int[] row : par) Arrays.fill(row, -1);
-        tree = new HashMap<>();
-        for (int i = 0; i <= n; i++) tree.put(i, new ArrayList<>());
 
+        int n = in.nextInt();
+        Map<Integer, List<Node>> tree = new HashMap();
+        for (int i = 0; i < n; i++) tree.put(i, new ArrayList<>());
 
         for (int i = 0; i < n - 1; i++) {
-            int u = in.nextInt();
-            int v = in.nextInt();
-            int w = in.nextInt();
-            tree.get(u).add(new Node(v, w));
-            tree.get(v).add(new Node(u, w));
+            int u = in.nextInt() - 1;
+            int v = in.nextInt() - 1;
+            int len = in.nextInt();
+            tree.get(u).add(new Node(v, len));
+            tree.get(v).add(new Node(u, len));
         }
 
-        dfs(1);
+        BinaryLiftingAndLCA queryInstance = new BinaryLiftingAndLCA(n, 0, tree);
 
-        int k = in.nextInt();
-        for (int i = 0; i < k; i++) {
-            int u = in.nextInt();
-            int v = in.nextInt();
-            if (u == v) {
-                out.println(0 + " " + 0);
-                continue;
-            }
+        int q = in.nextInt();
+        for (int i = 0; i < q; i++) {
+            int u = in.nextInt() - 1;
+            int v = in.nextInt() - 1;
             int[] ans = new int[2];
-            getAns(u, v, ans);
+            queryInstance.getMinAndMaxLengths(u, v, ans);
             out.println(ans[0] + " " + ans[1]);
         }
         out.close();
     }
 
-    static void getAns(int a, int b, int[] ans) {
-        if (depth[a] < depth[b]) {
-            int temp = a;
-            a = b;
-            b = temp;
+    static class BinaryLiftingAndLCA {
+        int nodeCount, root, LOG, timer;
+        Map<Integer, List<Node>> tree;
+        int[] depth, tIn, tOut;
+        int[][] up, min, max;
+
+        public BinaryLiftingAndLCA(int nodeCount, int root, Map<Integer, List<Node>> tree) {
+            this.nodeCount = nodeCount;
+            this.root = root;
+            this.tree = tree;
+            LOG = 0;
+            while ((1 << LOG) < nodeCount) LOG++;
+            depth = new int[nodeCount];
+            tIn = new int[nodeCount];
+            tOut = new int[nodeCount];
+            up = new int[nodeCount][LOG];
+            min = new int[nodeCount][LOG];
+            max = new int[nodeCount][LOG];
+            timer = 0;
+
+            dfs(root, root, 0);
         }
 
-        int mn = Integer.MAX_VALUE;
-        int mx = Integer.MIN_VALUE;
+        private void dfs(int node, int par, int len) {
+            depth[node] = depth[par] + 1;
+            tIn[node] = timer++;
+            up[node][0] = par;
+            min[node][0] = len;
+            max[node][0] = len;
 
-        int diff = depth[a] - depth[b];
-        for (int i = 0; i < LOG; i++) {
-            if (((1 << i) & diff) > 0 && par[a][i] != -1) {
-                mn = Math.min(mn, min[a][i]);
-                mx = Math.max(mx, max[a][i]);
-                a = par[a][i];
+            for (int i = 1; i < LOG; i++) {
+                up[node][i] = up[up[node][i - 1]][i - 1];
+                min[node][i] = Math.min(min[node][i - 1], min[up[node][i - 1]][i - 1]);
+                max[node][i] = Math.max(min[node][i - 1], max[up[node][i - 1]][i - 1]);
             }
-        }
 
-        if (a == b) {
-            ans[0] = mn;
-            ans[1] = mx;
-            return;
-        }
-
-        for (int i = LOG - 1; i >= 0; i--) {
-            if (par[a][i] != -1 && par[b][i] != -1 && par[a][i] != par[b][i]) {
-                mn = Math.min(mn, min[a][i]);
-                mx = Math.max(mx, max[a][i]);
-                mn = Math.min(mn, min[b][i]);
-                mx = Math.max(mx, max[b][i]);
-                a = par[a][i];
-                b = par[b][i];
+            for (Node neiNode : tree.get(node)) {
+                if (neiNode.node != par) dfs(neiNode.node, node, neiNode.len);
             }
+
+            tOut[node] = timer++;
         }
 
-        mn = Math.min(mn, min[a][0]);
-        mx = Math.max(mx, max[a][0]);
-        mn = Math.min(mn, min[b][0]);
-        mx = Math.max(mx, max[b][0]);
-        ans[0] = mn;
-        ans[1] = mx;
-    }
+        private boolean isAncestor(int u, int v) {
+            return tIn[u] <= tIn[v] && tOut[u] >= tOut[v];
+        }
 
-    static void dfs(int curNode) {
-        for (Node nei : tree.get(curNode)) {
-            if (depth[nei.node] == -1) {
-                depth[nei.node] = depth[curNode] + 1;
-                par[nei.node][0] = curNode;
-                min[nei.node][0] = nei.len;
-                max[nei.node][0] = nei.len;
-
-                for (int i = 1; i < LOG; i++) {
-                    if (par[nei.node][i - 1] != -1) {
-                        par[nei.node][i] = par[par[nei.node][i - 1]][i - 1];
-                        min[nei.node][i] = Math.min(min[nei.node][i - 1], min[par[nei.node][i - 1]][i - 1]);
-                        max[nei.node][i] = Math.max(min[nei.node][i - 1], max[par[nei.node][i - 1]][i - 1]);
-                    }
+        private void getKthParent(int node, int k, int[] ans) {
+            for (int i = 0; i < LOG; i++) {
+                if (((1 << i) & k) > 0) {
+                    ans[0] = Math.min(ans[0], min[node][i]);
+                    ans[1] = Math.max(ans[1], max[node][i]);
+                    node = up[node][i];
                 }
-                dfs(nei.node);
             }
+        }
+
+        private int getLCA(int u, int v) {
+            if (isAncestor(u, v)) return u;
+            if (isAncestor(v, u)) return v;
+
+            for (int i = LOG - 1; i >= 0; i--) {
+                if (!isAncestor(up[u][i], v)) {
+                    u = up[u][i];
+                }
+            }
+            return up[u][0];
+        }
+
+        private void getMinAndMaxLengths(int a, int b, int[] ans) {
+            int lca = getLCA(a, b);
+            int kForA = depth[a] - depth[lca];
+            int kForB = depth[b] - depth[lca];
+            int[] ans1 = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+            int[] ans2 = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+
+            getKthParent(a, kForA, ans1);
+            getKthParent(b, kForB, ans2);
+            ans[0] = Math.min(ans1[0], ans2[0]);
+            ans[1] = Math.max(ans1[1], ans2[1]);
         }
     }
 
