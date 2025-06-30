@@ -1,9 +1,11 @@
-package GraphTheory.BinaryLiftingAndLCA;
+package GraphTheory.MinimumSpanningTrees;
 
 import java.io.*;
 import java.util.*;
 
-public class DistanceQuerySPOJ {
+// Problem: https://codeforces.com/contest/609/problem/E
+
+public class MinimumSpanningTreeForEachEdge {
     static class Node {
         int node;
         int len;
@@ -14,32 +16,71 @@ public class DistanceQuerySPOJ {
         }
     }
 
+    static class Edge implements Comparable<Edge> {
+        int u;
+        int v;
+        int w;
+        int i;
+
+        public Edge(int u, int v, int w, int i) {
+            this.u = u;
+            this.v = v;
+            this.w = w;
+            this.i = i;
+        }
+
+        public int compareTo(Edge that) {
+            return Integer.compare(this.w, that.w);
+        }
+    }
+
     public static void main(String[] args) {
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
 
-
         int n = in.nextInt();
-        Map<Integer, List<Node>> tree = new HashMap();
-        for (int i = 0; i < n; i++) tree.put(i, new ArrayList<>());
+        int m = in.nextInt();
+        if (m == 0) return;
 
-        for (int i = 0; i < n - 1; i++) {
+        Edge[] edges = new Edge[m];
+
+        for (int i = 0; i < m; i++) {
             int u = in.nextInt() - 1;
             int v = in.nextInt() - 1;
-            int len = in.nextInt();
-            tree.get(u).add(new Node(v, len));
-            tree.get(v).add(new Node(u, len));
+            int w = in.nextInt();
+            edges[i] = new Edge(u, v, w, i);
         }
 
-        BinaryLiftingAndLCA queryInstance = new BinaryLiftingAndLCA(n, 0, tree);
+        Arrays.sort(edges);
+        long[] mstWeight = new long[m];
+        UnionFind unionFind = new UnionFind(n);
+        long minWeight = 0L;
+        Map<Integer, List<Node>> tree = new HashMap<>();
+        for (int i = 0; i < n; i++) tree.put(i, new ArrayList<>());
 
-        int q = in.nextInt();
-        for (int i = 0; i < q; i++) {
-            int u = in.nextInt() - 1;
-            int v = in.nextInt() - 1;
-            int[] ans = new int[2];
-            queryInstance.getMinAndMaxLengths(u, v, ans);
-            out.println(ans[0] + " " + ans[1]);
+        for (Edge edge : edges) {
+            if (unionFind.union(edge.u, edge.v)) {
+                minWeight += edge.w;
+                tree.get(edge.u).add(new Node(edge.v, edge.w));
+                tree.get(edge.v).add(new Node(edge.u, edge.w));
+            } else {
+                mstWeight[edge.i] = -1;
+            }
+        }
+
+        BinaryLiftingAndLCA query = new BinaryLiftingAndLCA(n, 0, tree);
+        for (Edge edge : edges) {
+            if (mstWeight[edge.i] == -1) {
+                long[] ans = new long[2];
+                query.getMinAndMaxLengths(edge.u, edge.v, ans);
+                mstWeight[edge.i] = (minWeight - ans[1]) + edge.w;
+            } else {
+                mstWeight[edge.i] = minWeight;
+            }
+        }
+
+        for (int i = 0; i < m; i++) {
+            out.println(mstWeight[i]);
         }
         out.close();
     }
@@ -113,7 +154,7 @@ public class DistanceQuerySPOJ {
             return up[u][0];
         }
 
-        private void getMinAndMaxLengths(int a, int b, int[] ans) {
+        private void getMinAndMaxLengths(int a, int b, long[] ans) {
             int lca = getLCA(a, b);
             int kForA = depth[a] - depth[lca];
             int kForB = depth[b] - depth[lca];
@@ -124,6 +165,38 @@ public class DistanceQuerySPOJ {
             getKthParent(b, kForB, ans2);
             ans[0] = Math.min(ans1[0], ans2[0]);
             ans[1] = Math.max(ans1[1], ans2[1]);
+        }
+    }
+
+    static class UnionFind {
+        private int nodeCount;
+        private int[] parent;
+        private int[] rank;
+
+        public UnionFind(int nodeCount) {
+            this.nodeCount = nodeCount;
+            parent = new int[nodeCount];
+            rank = new int[nodeCount];
+            for (int i = 0; i < nodeCount; i++) parent[i] = i;
+        }
+
+        public int findParent(int a) {
+            if (a == parent[a]) return a;
+            return parent[a] = findParent(parent[a]);
+        }
+
+        public boolean union(int a, int b) {
+            a = findParent(a);
+            b = findParent(b);
+            if (a == b) return false;
+
+            if (rank[a] == rank[b]) {
+                parent[b] = a;
+                rank[a]++;
+            } else if (rank[a] > rank[b]) parent[b] = a;
+            else parent[a] = b;
+
+            return true;
         }
     }
 
