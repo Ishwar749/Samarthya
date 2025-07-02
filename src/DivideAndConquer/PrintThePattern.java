@@ -18,7 +18,7 @@ public class PrintThePattern {
     static void generatePattern(int n, PrintWriter out) {
         if (n == 1) {
             out.print('A');
-            return;
+            return; 
         }
 
         generatePattern(n - 1, out);
