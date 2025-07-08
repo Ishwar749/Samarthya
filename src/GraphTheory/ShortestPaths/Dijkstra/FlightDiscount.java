@@ -1,4 +1,4 @@
-package GraphTheory.Dijkstra;
+package GraphTheory.ShortestPaths.Dijkstra;
 
 import java.io.BufferedReader;
 import java.io.IOException;
