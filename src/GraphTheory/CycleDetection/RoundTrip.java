@@ -46,6 +46,7 @@ public class RoundTrip {
     }
 
     static List<Integer> constructCycle(int[] cycleStartEnd, int[] parent) {
+
         List<Integer> result = new ArrayList<>();
         result.add(cycleStartEnd[0]);
 
