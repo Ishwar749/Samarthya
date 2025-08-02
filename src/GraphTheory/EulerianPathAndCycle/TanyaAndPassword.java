@@ -3,93 +3,123 @@ package GraphTheory.EulerianPathAndCycle;
 import java.io.*;
 import java.util.*;
 
+// Problem: https://codeforces.com/contest/508/problem/D
+
 public class TanyaAndPassword {
+    static class Edge {
+        int v;
+        int i;
+
+        public Edge(int v, int i) {
+            this.v = v;
+            this.i = i;
+        }
+    }
+
     public static void main(String[] args) {
         FastScanner in = new FastScanner();
         PrintWriter out = new PrintWriter(System.out);
 
         int n = in.nextInt();
         String[] s = new String[n];
-        boolean[] isSame = new boolean[n];
-        Map<String, List<Integer>> first = new HashMap<>();
-        Map<String, List<Integer>> last = new HashMap<>();
+
+        Map<String, Integer> stringToNode = new HashMap<>();
+        Map<Integer, String> nodeToString = new HashMap<>();
+        int index = 0;
+
+        Map<Integer, List<Edge>> graph = new HashMap<>();
 
         for (int i = 0; i < n; i++) {
             s[i] = in.next();
-            if (s[i].charAt(1) == s[i].charAt(0) && s[i].charAt(2) == s[i].charAt(1)) isSame[i] = true;
 
-            String firstTwo = s[i].substring(0, 2);
-            first.putIfAbsent(firstTwo, new ArrayList<>());
-            first.get(firstTwo).add(i);
+            String a = s[i].substring(0, 2);
+            String b = s[i].substring(1, 3);
 
-            String lastTwo = s[i].substring(1);
-            last.putIfAbsent(lastTwo, new ArrayList<>());
-            last.get(lastTwo).add(i);
+            if (!stringToNode.containsKey(a)) {
+                stringToNode.put(a, index);
+                nodeToString.put(index, a);
+                index++;
+            }
+            if (!stringToNode.containsKey(b)) {
+                stringToNode.put(b, index);
+                nodeToString.put(index, b);
+                index++;
+            }
+
+            int nodeA = stringToNode.get(a);
+            int nodeB = stringToNode.get(b);
+            graph.putIfAbsent(nodeA, new ArrayList<>());
+            graph.putIfAbsent(nodeB, new ArrayList<>());
+
+            graph.get(nodeA).add(new Edge(nodeB, i));
         }
 
-        solve(n, s, isSame, first, last, out);
+        solve(n, nodeToString, graph, out);
         out.close();
     }
 
-    static void solve(int n, String[] s, boolean[] isSame, Map<String, List<Integer>> first, Map<String, List<Integer>> last, PrintWriter output) {
+    static void solve(int noOfStrings, Map<Integer, String> nodeToString, Map<Integer, List<Edge>> graph, PrintWriter output) {
+        int nodes = nodeToString.keySet().size();
+        int[] in = new int[nodes];
+        int[] out = new int[nodes];
+        calculateDegrees(in, out, nodes, graph);
 
-        int[] in = new int[n];
-        int[] out = new int[n];
-        calculateDegrees(n, s, isSame, first, last, in, out);
-
-        if (!hasEulerianPath(n, in, out)) {
+        if (!hasEulerianPath(nodes, in, out)) {
             output.println("NO");
             return;
-        }
+        } else {
+            boolean[] visited = new boolean[noOfStrings]; // noOfStrings == noOfEdges
+            List<Integer> pathNodes = new ArrayList<>();
+            dfs(getStartNode(nodes, in, out), visited, graph, pathNodes);
 
-        boolean[] visited = new boolean[n];
-        List<Integer> path = new ArrayList<>();
+            if (pathNodes.size() != noOfStrings + 1) {
+                output.println("NO");
+                return;
+            }
 
-        int start = getStartNode(n, in, out);
-        visited[start] = true;
-        dfs(start, s, visited, first, path);
+            Collections.reverse(pathNodes);
 
-        for (int e : path) output.print(s[e] + " ");
-        output.println();
-        if (path.size() != n) output.println("NO");
-        else {
+            StringBuilder result = new StringBuilder();
+            result.append(nodeToString.get(pathNodes.get(0)));
+
+            for (int i = 1; i < pathNodes.size(); i++) {
+                char toAdd = nodeToString.get(pathNodes.get(i)).charAt(1);
+                result.append(toAdd);
+            }
+
             output.println("YES");
-            output.print(s[path.get(0)]);
-            for (int i = 1; i < path.size(); i++) {
-                output.print(s[path.get(i)].charAt(2));
-            }
+            output.println(result);
         }
     }
 
-    static void dfs(int cur, String[] s, boolean[] visited, Map<String, List<Integer>> first, List<Integer> path) {
-        path.add(cur);
-        String lastTwo = s[cur].substring(1);
+    static void dfs(int node, boolean[] visited, Map<Integer, List<Edge>> graph, List<Integer> pathNodes) {
 
-        for (int nei : first.get(lastTwo)) {
-            if (!visited[nei]) {
-                visited[nei] = true;
-                dfs(nei, s, visited, first, path);
+        for (Edge nei : graph.get(node)) {
+            if (!visited[nei.i]) {
+                visited[nei.i] = true;
+                dfs(nei.v, visited, graph, pathNodes);
             }
         }
+        pathNodes.add(node);
     }
 
-    static int getStartNode(int n, int[] in, int[] out) {
-        int start = 0;
+    static int getStartNode(int nodes, int[] in, int[] out) {
+        int startNode = 0;
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < nodes; i++) {
             if (out[i] - in[i] == 1) return i;
-            if (out[i] > 0) start = i;
+            if (out[i] > 0) startNode = i;
         }
 
-        return start;
+        return startNode;
     }
 
-    static boolean hasEulerianPath(int n, int[] in, int[] out) {
+    static boolean hasEulerianPath(int nodes, int[] in, int[] out) {
         int startNodes = 0;
         int endNodes = 0;
 
-        for (int i = 0; i < n; i++) {
-            if (Math.abs(out[i] - in[i]) > 1) return false;
+        for (int i = 0; i < nodes; i++) {
+            if (in[i] - out[i] > 1 || out[i] - in[i] > 1) return false;
             if (out[i] - in[i] == 1) startNodes++;
             if (in[i] - out[i] == 1) endNodes++;
         }
@@ -97,18 +127,11 @@ public class TanyaAndPassword {
         return (startNodes == 0 && endNodes == 0) || (startNodes == 1 && endNodes == 1);
     }
 
-    static void calculateDegrees(int n, String[] s, boolean[] isSame, Map<String, List<Integer>> first, Map<String, List<Integer>> last, int[] in, int[] out) {
-        for (int i = 0; i < n; i++) {
-            String firstTwo = s[i].substring(0, 2);
-            if (last.containsKey(firstTwo)) {
-                in[i] = last.get(firstTwo).size();
-                if (isSame[i]) in[i]--;
-            }
-
-            String lastTwo = s[i].substring(1);
-            if (first.containsKey(lastTwo)) {
-                out[i] = first.get(lastTwo).size();
-                if (isSame[i]) out[i]--;
+    static void calculateDegrees(int[] in, int[] out, int nodes, Map<Integer, List<Edge>> graph) {
+        for (int i = 0; i < nodes; i++) {
+            for (Edge nei : graph.get(i)) {
+                in[nei.v]++;
+                out[i]++;
             }
         }
     }
