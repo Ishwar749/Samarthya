@@ -1,6 +1,6 @@
 # Samarthya
 
-> **"Samarthya"** (Sanskrit: सामर्थ्य) translates to "potential" or "competence"- A curated repository of algorithmic solutions to competitive programming problems from leading platforms including Codeforces, CSES, SPOJ, and AtCoder.
+> **"Samarthya"** (Sanskrit: सामर्थ्य) translates to "potential" or "competence". This repository is a curated repository of algorithmic solutions to competitive programming problems from leading platforms including Codeforces, CSES, SPOJ, and AtCoder.
 
 ## Repository Structure
 
