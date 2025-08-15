@@ -1,0 +1,38 @@
+# .github/workflows/update-stats.yml
+name: Update Problem Count
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  update-count:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Count Java files and update README
+        run: |
+          # Count all .java files in the repository
+          JAVA_COUNT=$(find . -name "*.java" -type f | wc -l)
+          
+          # Update README.md with the new count
+          sed -i "s/Problems Solved: [0-9]\+/Problems Solved: $JAVA_COUNT/g" README.md
+          
+          # Check if there are changes
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            # Configure git
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+          
+            # Commit and push changes
+            git add README.md
+            git commit -m "Auto-update: $JAVA_COUNT problems solved"
+            git push
+          fi
