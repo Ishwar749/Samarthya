@@ -1,4 +1,4 @@
-//package Basics.SlidingWindowTechnique;
+package Basics.SlidingWindowTechnique;
 
 import java.io.*;
 import java.util.*;
