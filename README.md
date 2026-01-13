@@ -38,7 +38,7 @@ Samarthya/
 ## Statistics
 
 ```
-📈 Total Problems Solved: 230
+📈 Total Problems Solved: 232
 ```
 
 ## Connect With Me
