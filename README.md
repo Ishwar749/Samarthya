@@ -61,3 +61,18 @@ This project is open source and available under the [MIT License](LICENSE).
 ---
 
 **Active Since**: September 1, 2024
+<!---LeetCode Topics Start-->
+# LeetCode Topics
+## Array
+|  |
+| ------- |
+| [1340-jump-game-v](https://github.com/Ishwar749/Samarthya/tree/master/1340-jump-game-v) |
+## Dynamic Programming
+|  |
+| ------- |
+| [1340-jump-game-v](https://github.com/Ishwar749/Samarthya/tree/master/1340-jump-game-v) |
+## Sorting
+|  |
+| ------- |
+| [1340-jump-game-v](https://github.com/Ishwar749/Samarthya/tree/master/1340-jump-game-v) |
+<!---LeetCode Topics End-->
